@@ -26,9 +26,7 @@ What is Kickstart?
 
   Kickstart.nvim is a starting point for your own configuration.
     The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
+    what your configuration is doing, and modify it to suit your nee    Once you've done that, you can start exploring, configuring and tinkering to
     make Neovim your own! That might mean leaving Kickstart just the way it is for a while
     or immediately breaking it into modular pieces. It's up to you!
 
@@ -90,6 +88,9 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- I set this.
+vim.keymap.set('n', '<leader>op', vim.cmd.Ex, { desc = 'Opens netRW' })
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
@@ -102,7 +103,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -275,6 +276,42 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
+
+  -- Start Copilot
+  -- {
+  --   'zbirenbaum/copilot.lua',
+  --   cmd = 'Copilot',
+  --   event = 'InsertEnter',
+  --   config = function()
+  --     require('copilot').setup {
+  --       suggestion = { enabled = true },
+  --       panel = { enabled = true, auto_refresh = true },
+  --     }
+  --   end,
+  -- },
+  -- {
+  --   'giuxtaposition/blink-cmp-copilot',
+  --   config = function()
+  --     require('copilot').setup {
+  --       suggestion = {
+  --         enabled = true,
+  --         auto_trigger = true,
+  --         keymap = {
+  --           accept = '<C-Enter>',
+  --           next = '<C-j>',
+  --           prev = '<C-k>',
+  --           dismiss = '<C-e>',
+  --         },
+  --       },
+  --       panel = { enabled = false },
+  --     }
+  --   end,
+  -- },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -482,7 +519,27 @@ require('lazy').setup({
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
-      'saghen/blink.cmp',
+      {
+        'saghen/blink.cmp',
+        -- dependencies = {
+        --   {
+        --     'giuxtaposition/blink-cmp-copilot',
+        --   },
+        -- },
+        -- opts = {
+        --   sources = {
+        --     default = { 'lsp', 'path', 'snippets', 'buffer', 'copilot' },
+        --     providers = {
+        --       copilot = {
+        --         name = 'copilot',
+        --         module = 'blink-cmp-copilot',
+        --         score_offset = 100,
+        --         async = true,
+        --       },
+        --     },
+        --   },
+        -- },
+      },
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -617,9 +674,6 @@ require('lazy').setup({
           end
         end,
       })
-
-      -- Diagnostic Config
-      -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
@@ -663,7 +717,15 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {
+          settings = {
+            clangd = {
+              completion = {
+                callSnippet = 'Replace',
+              },
+            },
+          },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -674,7 +736,6 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
-        --
 
         lua_ls = {
           -- cmd = { ... },
@@ -726,6 +787,11 @@ require('lazy').setup({
         },
       }
     end,
+  },
+  {
+    'pmizio/typescript-tools.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    opts = {},
   },
 
   { -- Autoformat
@@ -801,6 +867,7 @@ require('lazy').setup({
         opts = {},
       },
       'folke/lazydev.nvim',
+      -- 'guixtaposition/blink-cmp-copilot',
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -846,9 +913,17 @@ require('lazy').setup({
       },
 
       sources = {
+        --
+        --iadddcoopilottothiss
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          -- copilot = {
+          --   name = 'copilot',
+          --   module = 'blink-cmp-copilot',
+          --   score_offset = 100,
+          --   async = true,
+          -- },
         },
       },
 
@@ -878,6 +953,7 @@ require('lazy').setup({
     config = function()
       ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
+        transparent = true,
         styles = {
           comments = { italic = false }, -- Disable italics in comments
         },
@@ -965,18 +1041,19 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  vim.keymap.set('n', '<C-e>', ':Neotree toggle<CR>', { desc = 'open explore s s' }),
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
@@ -1003,6 +1080,40 @@ require('lazy').setup({
     },
   },
 })
+
+local harpoon = require 'harpoon'
+
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set('n', '<leader>a', function()
+  harpoon:list():add()
+end, { desc = 'Add file to harpoon list.' })
+vim.keymap.set('n', '<C-e>', function()
+  harpoon.ui:toggle_quick_menu(harpoon:list())
+end, { desc = 'Toggle harpoon quick menu.' })
+
+vim.keymap.set('n', '<leader>1', function()
+  harpoon:list():select(1)
+end, { desc = 'Navigate to file at harpoon posistion 1' })
+vim.keymap.set('n', '<leader>2', function()
+  harpoon:list():select(2)
+end, { desc = 'Navigate to file at harpoon posistion 2' })
+vim.keymap.set('n', '<leader>3', function()
+  harpoon:list():select(3)
+end, { desc = 'Navigate to file at harpoon posistion 3' })
+vim.keymap.set('n', '<leader>4', function()
+  harpoon:list():select(4)
+end, { desc = 'Navigate to file at harpoon posistion 4' })
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set('n', '<C-S-P>', function()
+  harpoon:list():prev()
+end, { desc = 'Harpoon previous file' })
+vim.keymap.set('n', '<C-S-N>', function()
+  harpoon:list():next()
+end, { desc = 'Harpoon next file' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
