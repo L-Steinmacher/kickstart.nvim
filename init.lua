@@ -128,6 +128,9 @@ vim.opt.undofile = true
 -- Case-insensitive searching UNLESS \C or one or more capital letters in the search term
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+vim.opt.smartindent = true
+vim.opt.spell = true
+vim.opt.spelllang = en, programming
 
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
@@ -280,6 +283,13 @@ require('lazy').setup({
     'ThePrimeagen/harpoon',
     branch = 'harpoon2',
     dependencies = { 'nvim-lua/plenary.nvim' },
+  },
+  {
+    'psliwka/vim-dirtytalk',
+    build = ':DirtytalkUpdate',
+    config = function()
+      vim.opt.spelllang = { 'en', 'programming' }
+    end,
   },
 
   -- Start Copilot
