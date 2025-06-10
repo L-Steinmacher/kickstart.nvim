@@ -223,6 +223,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Start of nvim terminal
+
 vim.api.nvim_create_autocmd('TermOpen', {
   group = vim.api.nvim_create_augroup('custom-term-open', { clear = true }),
   callback = function()
@@ -234,11 +236,13 @@ vim.api.nvim_create_autocmd('TermOpen', {
 local job_id = 0
 
 vim.keymap.set('n', '<leader>st', function()
+  local root = find_project_root()
   vim.cmd.vnew()
   vim.cmd.term()
   vim.cmd.wincmd 'J'
   vim.api.nvim_win_set_height(0, 15)
   job_id = vim.bo.channel
+  -- vim.fn.chansend(job_id, { 'cd ' .. root })
 end, { desc = 'Opens [S]mall [T]erminal' })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
@@ -272,7 +276,7 @@ require('lazy').setup({
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
   --
-  -- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
+  -- Use `opts = {}` to auomatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
   --
 
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
@@ -1117,8 +1121,32 @@ require('lazy').setup({
 local harpoon = require 'harpoon'
 
 -- REQUIRED
-harpoon:setup()
+harpoon:setup {}
 -- REQUIRED
+
+-- basic telescope configuration
+local conf = require('telescope.config').values
+local function toggle_telescope(harpoon_files)
+  local file_paths = {}
+  for _, item in ipairs(harpoon_files.items) do
+    table.insert(file_paths, item.value)
+  end
+
+  require('telescope.pickers')
+    .new({}, {
+      prompt_title = 'Harpoon',
+      finder = require('telescope.finders').new_table {
+        results = file_paths,
+      },
+      previewer = conf.file_previewer {},
+      sorter = conf.generic_sorter {},
+    })
+    :find()
+end
+
+vim.keymap.set('n', '<C-e>', function()
+  toggle_telescope(harpoon:list())
+end, { desc = 'Open harpoon window' })
 
 vim.keymap.set('n', '<leader>a', function()
   harpoon:list():add()
