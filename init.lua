@@ -98,6 +98,9 @@ do
   vim.g.mapleader = ' '
   vim.g.maplocalleader = ' '
 
+   -- I set this.
+  vim.keymap.set('n', '<leader>op', vim.cmd.Ex, { desc = 'Opens netRW' })
+
   -- Set to true if you have a Nerd Font installed and selected in the terminal
   vim.g.have_nerd_font = false
 
